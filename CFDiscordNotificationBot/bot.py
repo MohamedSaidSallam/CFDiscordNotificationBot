@@ -1,5 +1,9 @@
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
+import os
+load_dotenv()
+SECRET_KEY = os.getenv("DISCORD_TOKEN")
 
 client = commands.Bot(command_prefix=';')
 
@@ -9,8 +13,8 @@ async def on_ready():
     print('Bot is ready')
 
 
-@client.commands()
+@client.command()
 async def hi(ctx):
     await ctx.send("Hello World")
 
-client.run('NzAyNTg5NDI2NDg3OTE4NzMz.XqCPlg.OdmiF1dLjmRoY2cWlNWylQ3SseE')
+client.run(SECRET_KEY)

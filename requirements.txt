@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 aiohttp==3.6.2
+=======
+discord
+>>>>>>> a1339413f385c4f8f849363b83835931ef28472e
 astroid==2.3.3
 async-timeout==3.0.1
 attrs==19.3.0

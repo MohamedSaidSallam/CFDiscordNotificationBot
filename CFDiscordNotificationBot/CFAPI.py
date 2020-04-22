@@ -1,8 +1,10 @@
 import requests
 
+
 class Contest:
 
-    def __init__(self, id, name, type, phase, frozen, durationSeconds = None, startTimeSeconds = None, relativeTimeSeconds = None):
+    def __init__(self, id, name, type, phase, frozen, durationSeconds=None, startTimeSeconds=None,
+                 relativeTimeSeconds=None):
         self.id = id
         self.name = name
         self.type = type
@@ -11,6 +13,7 @@ class Contest:
         self.durationSeconds = durationSeconds
         self.startTimeSeconds = startTimeSeconds
         self.relativeTimeSeconds = relativeTimeSeconds
+
 
 class APICallFailedException(Exception):
     def __init__(self, comment):
@@ -23,6 +26,7 @@ class APICallFailedException(Exception):
 URL = "https://codeforces.com/api/contest.list"
 PARAMS = {"gym": False, "lang": "en"}
 
+
 def getBeforeContests():
     """" Calls CF API to get Contests with phase before
     Args:
@@ -34,7 +38,7 @@ def getBeforeContests():
     Raises:
         APICallFailedException: when the call to CF API fails, The exception contains the comment returned from the API."""
 
-    r = requests.get(url = URL, params = PARAMS)
+    r = requests.get(url=URL, params=PARAMS)
     data = r.json()
 
     if data["status"] == "OK":
@@ -46,6 +50,7 @@ def getBeforeContests():
         return contests
     else:
         raise APICallFailedException(data["comment"])
+
 
 if __name__ == "__main__":
     getBeforeContests()

@@ -36,7 +36,8 @@ def getBeforeContests():
         list: Contains Objects of type Contest of the contests with phase "before".
 
     Raises:
-        APICallFailedException: when the call to CF API fails, The exception contains the comment returned from the API."""
+        APICallFailedException: when the call to CF API fails, The exception contains the comment returned from the API.
+    """
 
     r = requests.get(url=URL, params=PARAMS)
     data = r.json()

@@ -23,10 +23,10 @@ class CF(commands.Cog):
         for contest in contests[::-1]:
             contestsData.add_field(
                 name=f"**{contest.name}**",
-                value=f"@ _{datetime.fromtimestamp(contest.startTimeSeconds).strftime('%m-%d %H:%M')}_\n"
+                value=f"@_{datetime.fromtimestamp(contest.startTimeSeconds).strftime('%m-%d %H:%M')}_\n"
                 f"Duration: _{contest.durationSeconds / 60 / 60}_ hrs\n"
                 f"Scoring System: _{contest.type}_",
-                inline=True)
+                inline=False)
         contestsData.set_thumbnail(url=CF_LOGO)
         await ctx.send(embed=contestsData)
 

@@ -20,7 +20,7 @@ class APICallFailedException(Exception):
         self.comment = comment
 
     def __str__(self):
-        return f"APICallFailedException: Comment({self.comment})"
+        return f"{type(self).__name__}: Comment({self.comment})"
 
 
 URL = "https://codeforces.com/api/contest.list"
@@ -50,7 +50,3 @@ def getBeforeContests():
         return contests
     else:
         raise APICallFailedException(data["comment"])
-
-
-if __name__ == "__main__":
-    getBeforeContests()

@@ -1,4 +1,7 @@
+import asyncio
+import json
 from datetime import datetime
+from pathlib import Path
 
 import discord
 from discord.ext import commands
@@ -7,6 +10,8 @@ import CFDiscordNotificationBot.CFAPI
 
 CF_LOGO = "https://sta.codeforces.com/s/14049/images/codeforces-telegram-square.png"
 
+PATH_FODLER_DATA = 'Data/'
+PATH_FILE_CHANNELS_TO_NOTIFY =PATH_FODLER_DATA + "channelsToNotify.json"
 
 def getFormattedBeforeStart(relativeTimeSeconds):
     beforeStart = -1 * relativeTimeSeconds
@@ -22,9 +27,24 @@ def getFormattedBeforeStart(relativeTimeSeconds):
                 beforeStart /= 24
     return beforeStart, beforeStartPostfix
 
+def loadChannelsToNotify():
+    Path("Data").mkdir(parents=True, exist_ok=True)
+    try:
+        with open(PATH_FILE_CHANNELS_TO_NOTIFY, "r") as inputFile:
+            channelsToNotify = json.load(inputFile)
+        return channelsToNotify
+    except FileNotFoundError as e:
+        saveChannelsToNotify({})
+        return {}
+
+def saveChannelsToNotify(channelsToNotify):
+    with open(PATH_FILE_CHANNELS_TO_NOTIFY, "w") as outputFile:
+        json.dump(channelsToNotify, outputFile)
+
 class CF(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.channelsToNotify = loadChannelsToNotify()
 
     @commands.command(name="upcoming", description="", brief="", aliases=['upc'])
     async def upcoming(self, ctx):
@@ -46,6 +66,13 @@ class CF(commands.Cog):
                 inline=False)
         contestsData.set_thumbnail(url=CF_LOGO)
         await ctx.send(embed=contestsData)
+
+    @commands.command(name="registerChannelForNotifications", description="", brief="", aliases=['rfn'])
+    async def registerChannelForNotifications(self, ctx, roleToTag: discord.Role):
+        self.channelsToNotify.setdefault(
+            ctx.guild.id, []).append((ctx.channel.id, roleToTag.mention))
+        saveChannelsToNotify(self.channelsToNotify)
+        await ctx.send("Registered")
 
 
 def setup(bot):

@@ -71,11 +71,12 @@ def addContestEmbedFields(contestsEmbed, contest):
 def getEmbedContestNotification(contest):
     contestEmbed = discord.Embed(
         title=f"Reminder: {contest.name}",
-        url='https://codeforces.com/contest/',
+        url=f'https://codeforces.com/contestRegistration/{contest.id}',
         color=discord.Colour.dark_blue()
     )
     addContestEmbedFields(contestEmbed, contest)
     contestEmbed.set_thumbnail(url=CF_LOGO)
+    contestEmbed.set_footer(text="Click on the link to register") ## ! only works if the notification was sent 2 days or less before the contest
     return contestEmbed
 
 

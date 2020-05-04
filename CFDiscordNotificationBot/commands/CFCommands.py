@@ -129,18 +129,19 @@ class CF(commands.Cog):
             print(contest.name, delay)
             if delay > 0:
                 asyncio.ensure_future(self.notifyChannels(
-                    delay, getEmbedContestNotification(contest), msg))
+                    delay, contest, msg))
 
         contestDuration = timedelta(days=contest.durationSeconds // 86399, seconds=contest.durationSeconds % 86399) \
             if contest.durationSeconds > 86399 else timedelta(seconds=contest.durationSeconds)
 
         delay = ((datetime.fromtimestamp(contest.startTimeSeconds) +
                   contestDuration) - datetimeNow).total_seconds()
-        asyncio.ensure_future(self.notifyChannels(delay, getEmbedContestNotification(contest),
+        asyncio.ensure_future(self.notifyChannels(delay, contest,
                                                   "Contest Ended!! Hope you enjoyed it :D"))
 
-    async def notifyChannels(self, delay, embed, msg=None):
+    async def notifyChannels(self, delay, contest, msg=None):
         await asyncio.sleep(delay)
+        embed = getEmbedContestNotification(contest)
         for channels in self.channelsToNotify.values():
             for channel, role in channels:
                 await self.bot.get_channel(channel).send(f"{role}{(' ' + msg) if msg is not None else ''}", embed=embed)

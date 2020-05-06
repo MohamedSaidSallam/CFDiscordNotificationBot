@@ -96,7 +96,7 @@ class CF(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.channelsToNotify = loadChannelsToNotify()
-
+        self.rescheduledContests = {}
         self.updateCache()
         asyncio.ensure_future(self.scheduleCacheRefresh())
 
@@ -141,7 +141,15 @@ class CF(commands.Cog):
 
     async def notifyChannels(self, delay, contest, msg=None):
         await asyncio.sleep(delay)
-        embed = getEmbedContestNotification(contest)
+        self.updateCache()
+        for current_contest in self.contestCacheRaw:
+            if contest.name == current_contest.name:
+                if contest.startTimeSeconds != current_contest.startTimeSeconds and self.rescheduledContests.get(contest.name, 0) != current_contest.startTimeSeconds:
+                    self.rescheduledContests[contest.name] = current_contest.startTimeSeconds
+                    self.scheduleContestNotification(current_contest)
+                    return
+                else:
+                    break
         for channels in self.channelsToNotify.values():
             for channel, role in channels:
                 await self.bot.get_channel(channel).send(f"{role}{(' ' + msg) if msg is not None else ''}", embed=embed)

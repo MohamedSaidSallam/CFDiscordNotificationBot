@@ -142,6 +142,7 @@ class CF(commands.Cog):
     async def notifyChannels(self, delay, contest, msg=None):
         await asyncio.sleep(delay)
         self.updateCache()
+        embed = ""
         for current_contest in self.contestCacheRaw:
             if contest.name == current_contest.name:
                 if contest.startTimeSeconds != current_contest.startTimeSeconds and self.rescheduledContests.get(contest.name, 0) != current_contest.startTimeSeconds:
@@ -149,6 +150,7 @@ class CF(commands.Cog):
                     self.scheduleContestNotification(current_contest)
                     return
                 else:
+                    embed = getEmbedContestNotification(current_contest)
                     break
         for channels in self.channelsToNotify.values():
             for channel, role in channels:

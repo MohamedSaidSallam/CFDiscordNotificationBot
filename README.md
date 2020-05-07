@@ -21,13 +21,14 @@ To get the full list of commands type `;help` after adding the bot to the server
 
 Use `;upcoming` to get the upcoming contest on codeforces.
 
-![Upcoming_Example](resources\readme\Upcoming_Example.jpg)
+![Upcoming_Example](resources/readme/Upcoming_Example.jpg)
 
 ### Contest Notifications
 
 Use `;rfn @ROLE_TO_NOTIFIY` to register a channel for notifications.
 
 ![Register Example](resources/readme/Register_Example.jpg)
+
 ![Notification Example](resources/readme/Notification_Example.jpg)
 
 ## Running the code on your local Machine

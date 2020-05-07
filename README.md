@@ -11,7 +11,7 @@
 [![Top.gg][top_gg_badge]][top_gg_link]
 [![Support Discord][discord_badge]][discord_inv]
 
-A discord bot that allows you to set reminders on your server for upcoming [codeforces](codeforces) rounds.
+A discord bot that allows you to set reminders on your server for upcoming [codeforces][codeforces] rounds.
 
 ## Features
 

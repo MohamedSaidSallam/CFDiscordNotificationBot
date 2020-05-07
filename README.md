@@ -1,7 +1,7 @@
 # CF Discord Notification Bot
 
 <p align="center">
-  <img src="resources/CFN Icon.png" alt="CFN Icon"/>
+  <img src="resources/CFN Icon.png" alt="CFN Icon" height="256" width="256"/>
 </p>
 
 [![Codacy Badge][codacy_badge]][codacy_link]

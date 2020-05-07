@@ -27,8 +27,8 @@ Use `;upcoming` to get the upcoming contest on codeforces.
 
 Use `;rfn @ROLE_TO_NOTIFIY` to register a channel for notifications.
 
-![Register Example](resources\readme\Register_Example.jpg)
-![Notification Example](resources\readme\Notification_Example.jpg)
+![Register Example](resources/readme/Register_Example.jpg)
+![Notification Example](resources/readme/Notification_Example.jpg)
 
 ## Running the code on your local Machine
 

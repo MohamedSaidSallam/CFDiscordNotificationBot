@@ -1,0 +1,13 @@
+version: "3"
+services:
+    cfdiscordnotificationbot:
+        container_name: CFN
+        build: .
+        image: cfnbot:latest
+        volumes:
+            - CFNdata:/usr/src/app/Data/
+        environment:
+            PYTHONUNBUFFERED: 1
+        restart: always
+volumes:
+    CFNdata:

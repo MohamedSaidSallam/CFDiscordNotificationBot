@@ -31,9 +31,11 @@ Use `;rfn @ROLE_TO_NOTIFIY` to register a channel for notifications.
 
 ![Notification Example](resources/readme/Notification_Example.jpg)
 
-## Running the code on your local Machine
+## Running the code
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+You can run the code using any of the following methods.
+
+### Venv
 
 Install the required python modules (perferably in a virtual env) to be able to run the bot.
 
@@ -51,9 +53,48 @@ Run the bot using the followingL
 python -m CFDiscordNotificationBot
 ```
 
-## Deployment
+### Docker
 
-Add additional notes about how to deploy this on a live system
+First make sure u have docker installed. Build the image from the dockerfile then run an container using the following commands.
+
+```bash
+docker build -t cfnbot:latest .
+docker run --rm -d -v CFNdata:/usr/src/app/Data/ --name CFN cfnbot:latest
+```
+
+To stop the container:
+
+```bash
+docker stop CFN
+```
+
+### Docker-compose
+
+First make sure u have docker compose installed. Run the following command to start the container.
+
+```bash
+docker-compose up
+```
+
+Use ``--build`` if there has been a change to the Dockerfile.
+
+```bash
+docker-compose up --build
+```
+
+To stop the container:
+
+```bash
+docker-compose down
+```
+
+If you to use the same volume as docker change the volume part of docker-compose.yml to:
+
+```yaml
+volumes:
+    CFNdata:
+        external: true
+```
 
 ## Built With
 
@@ -63,7 +104,7 @@ Add additional notes about how to deploy this on a live system
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 

@@ -58,7 +58,7 @@ def saveChannelsToNotify(channelsToNotify):
 
 def addContestEmbedFields(contestsEmbed, contest):
     beforeStart, beforeStartPostfix = getFormattedBeforeStart(
-        min(0, (datetime.utcfromtimestamp(contest.startTimeSeconds)-datetime.now()).seconds))
+        min(0, (datetime.now()-datetime.utcfromtimestamp(contest.startTimeSeconds)).seconds))
     contestsEmbed.add_field(
         name=f"**{contest.name}**",
         value=f"@_{datetime.utcfromtimestamp(contest.startTimeSeconds).strftime('%m-%d %H:%M')}_"

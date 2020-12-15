@@ -5,6 +5,7 @@ from pathlib import Path
 
 import discord
 from discord.ext import commands
+from discord.ext.commands.errors import ConversionError
 
 import CFDiscordNotificationBot.CFAPI as CFAPI
 
@@ -24,8 +25,7 @@ NOTIFICATION_FREQ = [
 ]
 
 
-def getFormattedBeforeStart(relativeTimeSeconds):
-    beforeStart = -1 * relativeTimeSeconds
+def getFormattedBeforeStart(beforeStart):
     beforeStartPostfix = "sec(s)"
     if beforeStart > 60:
         beforeStartPostfix = "min(s)"
@@ -58,11 +58,14 @@ def saveChannelsToNotify(channelsToNotify):
 
 def addContestEmbedFields(contestsEmbed, contest):
     beforeStart, beforeStartPostfix = getFormattedBeforeStart(
-        contest.relativeTimeSeconds)
+        max(0,
+            (datetime.utcfromtimestamp(contest.startTimeSeconds)-datetime.now()).total_seconds()
+            )
+    )
     contestsEmbed.add_field(
         name=f"**{contest.name}**",
-        value=f"@_{datetime.fromtimestamp(contest.startTimeSeconds).strftime('%m-%d %H:%M')}_"
-        f", In _{int(beforeStart)}_ {beforeStartPostfix}\n"
+        value=f"@_{datetime.utcfromtimestamp(contest.startTimeSeconds).strftime('%m-%d %H:%M')}_"
+        f", In _{round(beforeStart)}_ {beforeStartPostfix}\n"
         f"Duration: _{contest.durationSeconds / 60 / 60}_ hr(s)\n"
         f"Scoring System: _{contest.type}_\n",
         inline=False)
@@ -76,7 +79,8 @@ def getEmbedContestNotification(contest):
     )
     addContestEmbedFields(contestEmbed, contest)
     contestEmbed.set_thumbnail(url=CF_LOGO)
-    contestEmbed.set_footer(text="Click on the link to register") ## ! only works if the notification was sent 2 days or less before the contest
+    # ! only works if the notification was sent 2 days or less before the contest
+    contestEmbed.set_footer(text="Click on the link to register")
     return contestEmbed
 
 
@@ -100,6 +104,8 @@ class CF(commands.Cog):
         self.updateCache()
         asyncio.ensure_future(self.scheduleCacheRefresh())
 
+        # asyncio.ensure_future(self.notifyChannels(10, self.contestCacheRaw[0], "testing smth"))
+
         for contest in self.contestCacheRaw:
             self.scheduleContestNotification(contest)
 
@@ -116,7 +122,8 @@ class CF(commands.Cog):
             self.updateCache()
             for contest in self.contestCacheRaw:
                 if contest.name not in oldContestNames:
-                    self.scheduleContestNotification(contest)
+                    self.scheduleContestNotification(
+                        contest)  # ! duplicate notifications ?
 
     def scheduleContestNotification(self, contest):
         datetimeNow = datetime.now()

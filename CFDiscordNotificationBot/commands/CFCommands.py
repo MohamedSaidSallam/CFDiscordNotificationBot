@@ -3,10 +3,11 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import discord
-from discord.ext import commands
-
 import CFDiscordNotificationBot.CFAPI as CFAPI
+import discord
+import pytz
+from discord.ext import commands
+from discord.ext.commands.errors import ConversionError
 
 CF_LOGO = "https://sta.codeforces.com/s/14049/images/codeforces-telegram-square.png"
 
@@ -23,9 +24,9 @@ NOTIFICATION_FREQ = [
     timedelta(days=1, hours=0, minutes=0, seconds=0)
 ]
 
+LOCAL_TZ = pytz.timezone('Africa/Cairo') # todo: add command to set per server timezone
 
-def getFormattedBeforeStart(relativeTimeSeconds):
-    beforeStart = -1 * relativeTimeSeconds
+def getFormattedBeforeStart(beforeStart):
     beforeStartPostfix = "sec(s)"
     if beforeStart > 60:
         beforeStartPostfix = "min(s)"
@@ -57,12 +58,17 @@ def saveChannelsToNotify(channelsToNotify):
 
 
 def addContestEmbedFields(contestsEmbed, contest):
+    startTime = datetime.utcfromtimestamp(contest.startTimeSeconds).replace(tzinfo=pytz.utc).astimezone(tz=LOCAL_TZ)
     beforeStart, beforeStartPostfix = getFormattedBeforeStart(
-        min(0, (datetime.now()-datetime.utcfromtimestamp(contest.startTimeSeconds)).seconds))
+        max(0,
+            (startTime -
+             datetime.now().replace(tzinfo=pytz.utc).astimezone(tz=LOCAL_TZ)).total_seconds()
+            )
+    )
     contestsEmbed.add_field(
         name=f"**{contest.name}**",
-        value=f"@_{datetime.utcfromtimestamp(contest.startTimeSeconds).strftime('%m-%d %H:%M')}_"
-        f", In _{int(beforeStart)}_ {beforeStartPostfix}\n"
+        value=f"@_{startTime.strftime('%m-%d %H:%M')}_"
+        f", In _{round(beforeStart)}_ {beforeStartPostfix}\n"
         f"Duration: _{contest.durationSeconds / 60 / 60}_ hr(s)\n"
         f"Scoring System: _{contest.type}_\n",
         inline=False)

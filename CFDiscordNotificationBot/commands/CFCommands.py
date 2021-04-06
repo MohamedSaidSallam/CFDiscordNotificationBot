@@ -1,11 +1,13 @@
 import asyncio
 import json
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import CFDiscordNotificationBot.CFAPI as CFAPI
 import discord
 import pytz
+import requests
 from discord.ext import commands
 from discord.ext.commands.errors import ConversionError
 
@@ -15,6 +17,7 @@ PATH_FODLER_DATA = 'Data/'
 PATH_FILE_CHANNELS_TO_NOTIFY = PATH_FODLER_DATA + "channelsToNotify.json"
 
 CACHE_REFRESH_RATE = 24 * 60 * 60  # seconds
+CACHE_REFRESH_FAIL = 15 * 60  # seconds
 
 NOTIFICATION_FREQ = [
     (timedelta(days=0, hours=0, minutes=0, seconds=0), "Contest Started!!! GOOD LUCK"),
@@ -102,16 +105,19 @@ class CF(commands.Cog):
         self.updateCache()
         asyncio.ensure_future(self.scheduleCacheRefresh())
 
-        self.scheduleNotifications()
+        self.scheduleNotifications(self.contestCacheRaw)
 
     def updateCache(self):
-        self.contestCacheRaw = CFAPI.getBeforeContests()
-        self.contestCacheEmbed = getContestsEmbed("Upcoming Codeforces Rounds",
-                                                  self.contestCacheRaw)
+        while True:
+            try:
+                self.contestCacheRaw = CFAPI.getBeforeContests()
+                break
+            except requests.exceptions.HTTPError:
+                time.sleep(CACHE_REFRESH_FAIL)
 
-    def scheduleNotifications(self):
+    def scheduleNotifications(self, contestsRaw):
         notificaitons = {}
-        for contest in self.contestCacheRaw:
+        for contest in contestsRaw:
             contestNotifcations = self.scheduleContestNotification(contest)
             for delay, contest, msg in contestNotifcations:
                 if delay in notificaitons:
@@ -125,13 +131,14 @@ class CF(commands.Cog):
     async def scheduleCacheRefresh(self):
         while True:
             await asyncio.sleep(CACHE_REFRESH_RATE)
-            oldContestNames = [
-                contest.name for contest in self.contestCacheRaw]
+
+            oldContestIDs = [
+                contest.id for contest in self.contestCacheRaw]
+
             self.updateCache()
-            for contest in self.contestCacheRaw:
-                if contest.name not in oldContestNames:
-                    self.scheduleContestNotification(
-                        contest)  # ! duplicate notifications ?
+
+            self.scheduleNotifications(
+                [contest for contest in self.contestCacheRaw if contest.id not in oldContestIDs])
 
     def scheduleContestNotification(self, contest):
         output = []
@@ -167,7 +174,8 @@ class CF(commands.Cog):
 
     @commands.command(name="upcoming", description="", brief="", aliases=['upc'])
     async def upcoming(self, ctx):
-        await ctx.send(embed=self.contestCacheEmbed)
+        await ctx.send(embed=getContestsEmbed("Upcoming Codeforces Rounds",
+                                              self.contestCacheRaw))
 
     @commands.command(name="registerChannelForNotifications", description="", brief="", aliases=['rfn'])
     async def registerChannelForNotifications(self, ctx, roleToTag: discord.Role):

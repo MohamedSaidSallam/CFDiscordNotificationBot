@@ -40,6 +40,7 @@ def getBeforeContests():
     """
 
     r = requests.get(url=URL, params=PARAMS)
+    r.raise_for_status()
     data = r.json()
 
     if data["status"] == "OK":

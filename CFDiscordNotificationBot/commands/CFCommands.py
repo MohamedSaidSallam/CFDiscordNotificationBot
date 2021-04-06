@@ -109,8 +109,6 @@ class CF(commands.Cog):
         self.updateCache()
         asyncio.ensure_future(self.scheduleCacheRefresh())
 
-        # asyncio.ensure_future(self.notifyChannels(10, self.contestCacheRaw[0], "testing smth"))
-
         for contest in self.contestCacheRaw:
             self.scheduleContestNotification(contest)
 

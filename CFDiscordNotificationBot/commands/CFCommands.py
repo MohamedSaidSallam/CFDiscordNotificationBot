@@ -76,22 +76,9 @@ def addContestEmbedFields(contestsEmbed, contest):
         inline=False)
 
 
-def getEmbedContestNotification(contest):
-    contestEmbed = discord.Embed(
-        title=f"Reminder: {contest.name}",
-        url=f'https://codeforces.com/contestRegistration/{contest.id}',
-        color=discord.Colour.dark_blue()
-    )
-    addContestEmbedFields(contestEmbed, contest)
-    contestEmbed.set_thumbnail(url=CF_LOGO)
-    # ! only works if the notification was sent 2 days or less before the contest
-    contestEmbed.set_footer(text="Click on the link to register")
-    return contestEmbed
-
-
-def UpcomingContestRawToEmbed(contests):
+def getContestsEmbed(title, contests):
     contestsEmbed = discord.Embed(
-        title="Upcoming Codeforces Rounds",
+        title=title,
         url='https://codeforces.com/contests',
         color=discord.Colour.dark_blue()
     )
@@ -115,13 +102,25 @@ class CF(commands.Cog):
         self.updateCache()
         asyncio.ensure_future(self.scheduleCacheRefresh())
 
-        for contest in self.contestCacheRaw:
-            self.scheduleContestNotification(contest)
+        self.scheduleNotifications()
 
     def updateCache(self):
         self.contestCacheRaw = CFAPI.getBeforeContests()
-        self.contestCacheEmbed = UpcomingContestRawToEmbed(
-            self.contestCacheRaw)  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        self.contestCacheEmbed = getContestsEmbed("Upcoming Codeforces Rounds",
+                                                  self.contestCacheRaw)
+
+    def scheduleNotifications(self):
+        notificaitons = {}
+        for contest in self.contestCacheRaw:
+            contestNotifcations = self.scheduleContestNotification(contest)
+            for delay, contest, msg in contestNotifcations:
+                if delay in notificaitons:
+                    notificaitons[delay].append((contest, msg))
+                else:
+                    notificaitons[delay] = [(contest, msg)]
+
+        for delay, contests in notificaitons.items():
+            asyncio.ensure_future(self.notifyChannels(delay, contests))
 
     async def scheduleCacheRefresh(self):
         while True:
@@ -135,6 +134,7 @@ class CF(commands.Cog):
                         contest)  # ! duplicate notifications ?
 
     def scheduleContestNotification(self, contest):
+        output = []
         datetimeNow = datetime.now()
         for notifyObj in NOTIFICATION_FREQ:
             notificationTimedelta, msg = notifyObj if type(
@@ -143,18 +143,27 @@ class CF(commands.Cog):
                 contest.startTimeSeconds) - notificationTimedelta
             delay = (notificationTime - datetimeNow).total_seconds()
             if delay > 0:
-                asyncio.ensure_future(self.notifyChannels(
-                    delay, contest, msg))
+                output.append((delay, contest, msg))
 
-        contestEndNotification = getContestEndNotifcation(contest)
-        asyncio.ensure_future(self.notifyChannels(*contestEndNotification))
+        output.append(getContestEndNotifcation(contest))
+        return output
 
-    async def notifyChannels(self, delay, contest, msg=None):
+    async def notifyChannels(self, delay, contests):
         await asyncio.sleep(delay)
-        embed = getEmbedContestNotification(contest)
+        embed = getContestsEmbed("Reminder", list(
+            map(lambda contest: contest[0], contests)))
+
+        msg = None
+        for contest in contests:
+            if contest[1]:
+                msg = contest[1]
+                break
+
         for channels in self.channelsToNotify.values():
             for channel, role in channels:
-                await self.bot.get_channel(channel).send(f"{role}{(' ' + msg) if msg is not None else ''}", embed=embed)
+                channel = self.bot.get_channel(channel)
+                if channel:
+                    await channel.send(f"{role}{(' ' + msg) if msg is not None else ''}", embed=embed)
 
     @commands.command(name="upcoming", description="", brief="", aliases=['upc'])
     async def upcoming(self, ctx):

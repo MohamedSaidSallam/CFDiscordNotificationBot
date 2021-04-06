@@ -136,16 +136,12 @@ class CF(commands.Cog):
             notificationTime = datetime.fromtimestamp(
                 contest.startTimeSeconds) - notificationTimedelta
             delay = (notificationTime - datetimeNow).total_seconds()
-            print(contest.name, delay)
             if delay > 0:
                 asyncio.ensure_future(self.notifyChannels(
                     delay, contest, msg))
 
-        contestDuration = timedelta(days=contest.durationSeconds // 86399, seconds=contest.durationSeconds % 86399) \
-            if contest.durationSeconds > 86399 else timedelta(seconds=contest.durationSeconds)
-
-        delay = ((datetime.fromtimestamp(contest.startTimeSeconds) +
-                  contestDuration) - datetimeNow).total_seconds()
+        delay = ((datetime.fromtimestamp(contest.startTimeSeconds +
+                                         contest.durationSeconds)) - datetimeNow).total_seconds()
         asyncio.ensure_future(self.notifyChannels(delay, contest,
                                                   "Contest Ended!! Hope you enjoyed it :D"))
 

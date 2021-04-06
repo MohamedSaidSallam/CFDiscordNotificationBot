@@ -20,7 +20,6 @@ NOTIFICATION_FREQ = [
     (timedelta(days=0, hours=0, minutes=0, seconds=0), "Contest Started!!! GOOD LUCK"),
     timedelta(days=0, hours=0, minutes=5, seconds=0),
     timedelta(days=0, hours=0, minutes=30, seconds=0),
-    timedelta(days=0, hours=3, minutes=0, seconds=0),
     timedelta(days=1, hours=0, minutes=0, seconds=0)
 ]
 

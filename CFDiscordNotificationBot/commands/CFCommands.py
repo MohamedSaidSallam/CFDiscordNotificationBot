@@ -101,6 +101,12 @@ def UpcomingContestRawToEmbed(contests):
     return contestsEmbed
 
 
+def getContestEndNotifcation(contest):
+    return (((datetime.fromtimestamp(contest.startTimeSeconds +
+                                     contest.durationSeconds)) - datetime.now()).total_seconds(), contest,
+            "Contest Ended!! Hope you enjoyed it :D")
+
+
 class CF(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -115,7 +121,7 @@ class CF(commands.Cog):
     def updateCache(self):
         self.contestCacheRaw = CFAPI.getBeforeContests()
         self.contestCacheEmbed = UpcomingContestRawToEmbed(
-            self.contestCacheRaw)
+            self.contestCacheRaw)  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     async def scheduleCacheRefresh(self):
         while True:
@@ -140,10 +146,8 @@ class CF(commands.Cog):
                 asyncio.ensure_future(self.notifyChannels(
                     delay, contest, msg))
 
-        delay = ((datetime.fromtimestamp(contest.startTimeSeconds +
-                                         contest.durationSeconds)) - datetimeNow).total_seconds()
-        asyncio.ensure_future(self.notifyChannels(delay, contest,
-                                                  "Contest Ended!! Hope you enjoyed it :D"))
+        contestEndNotification = getContestEndNotifcation(contest)
+        asyncio.ensure_future(self.notifyChannels(*contestEndNotification))
 
     async def notifyChannels(self, delay, contest, msg=None):
         await asyncio.sleep(delay)

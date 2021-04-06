@@ -130,7 +130,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 [codeforces]: https://codeforces.com/
 
-[github_release_badge]: https://img.shields.io/github/v/release/TheDigitalPhoenixX/CFDiscordNotificationBot.svg?style=flat
+[github_release_badge]: https://img.shields.io/github/v/release/TheDigitalPhoenixX/CFDiscordNotificationBot.svg?style=flat&include_prereleases
 [github_release_link]: https://github.com/TheDigitalPhoenixX/CFDiscordNotificationBot/releases
 
 [top_gg_badge]: https://img.shields.io/badge/Add%20to%20your%20server-Top.gg-7289da

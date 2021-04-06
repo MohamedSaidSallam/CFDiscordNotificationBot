@@ -14,7 +14,7 @@ CF_LOGO = "https://sta.codeforces.com/s/14049/images/codeforces-telegram-square.
 PATH_FODLER_DATA = 'Data/'
 PATH_FILE_CHANNELS_TO_NOTIFY = PATH_FODLER_DATA + "channelsToNotify.json"
 
-CACHE_REFRESH_RATE = 24 * 60 * 60 # seconds
+CACHE_REFRESH_RATE = 24 * 60 * 60  # seconds
 
 NOTIFICATION_FREQ = [
     (timedelta(days=0, hours=0, minutes=0, seconds=0), "Contest Started!!! GOOD LUCK"),
@@ -23,7 +23,9 @@ NOTIFICATION_FREQ = [
     timedelta(days=1, hours=0, minutes=0, seconds=0)
 ]
 
-LOCAL_TZ = pytz.timezone('Africa/Cairo') # todo: add command to set per server timezone
+# todo: add command to set per server timezone
+LOCAL_TZ = pytz.timezone('Africa/Cairo')
+
 
 def getFormattedBeforeStart(beforeStart):
     beforeStartPostfix = "sec(s)"
@@ -57,7 +59,8 @@ def saveChannelsToNotify(channelsToNotify):
 
 
 def addContestEmbedFields(contestsEmbed, contest):
-    startTime = datetime.utcfromtimestamp(contest.startTimeSeconds).replace(tzinfo=pytz.utc).astimezone(tz=LOCAL_TZ)
+    startTime = datetime.utcfromtimestamp(contest.startTimeSeconds).replace(
+        tzinfo=pytz.utc).astimezone(tz=LOCAL_TZ)
     beforeStart, beforeStartPostfix = getFormattedBeforeStart(
         max(0,
             (startTime -
